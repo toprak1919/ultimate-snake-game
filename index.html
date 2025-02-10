@@ -4,20 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ultimate Snake Game</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="game-container">
-        <div class="score-container">
-            <span>Score: <span id="score">0</span></span>
-            <span>High Score: <span id="highScore">0</span></span>
-        </div>
-        <canvas id="gameCanvas"></canvas>
-        <div id="gameOver" class="hidden">
-            <h2>Game Over!</h2>
-            <button id="restartButton">Play Again</button>
+    <!-- Outer box that acts as enemy spawn area -->
+    <div class="outer-box">
+        <!-- Boss health display now in the outer box -->
+        <div id="bossHealthDisplay" class="boss-health-outside">Boss Health: 100 / 100</div>
+        <!-- Main game box (canvas lives here) -->
+        <div class="game-container">
+            <div class="score-container">
+                <span>Score: <span id="score">0</span></span>
+                <span>High Score: <span id="highScore">0</span></span>
+            </div>
+            <canvas id="gameCanvas"></canvas>
+            <div id="gameOver" class="hidden">
+                <h2>Game Over!</h2>
+                <button id="restartButton">Play Again</button>
+            </div>
         </div>
     </div>
-    <script src="game.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/game.js"></script>
 </body>
 </html>

@@ -1,0 +1,210 @@
+:root {
+  --primary-color: #ff6b6b;
+  --secondary-color: #4ecdc4;
+  --accent-color: #ffe66d;
+  --background-color: #2c3e50;
+  --rainbow-colors: linear-gradient(
+    124deg,
+    #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840,
+    #1ddde8, #2b1de8, #dd00f3, #dd00f3
+  );
+}
+
+/* Base styles */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background: var(--background-color);
+  color: #fff;
+  font-family: Arial, sans-serif;
+}
+
+/* Main game container (inner box) */
+.game-container {
+  position: relative;
+  animation: fadeIn 0.5s ease-in;
+  background: var(--background-color);
+  padding: 20px;
+  border-radius: 10px;
+  width: 600px;
+  height: 400px;
+}
+
+/* Outer box (second box) that wraps the main game box */
+.outer-box {
+  border: 3px solid var(--accent-color);
+  padding: 15px;
+  border-radius: 10px;
+  margin: 20px;
+  display: flex; /* Use flexbox for alignment */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  flex-direction: column; /* Stack items vertically */
+  /* Slightly larger than the inner game box */
+  min-width: 640px;
+  min-height: 480px;
+}
+
+.score-container {
+  display: flex;
+  justify-content: space-between;
+  color: var(--accent-color);
+  padding: 10px;
+  font-size: 20px;
+  animation: pulse 1.5s infinite;
+}
+
+#gameCanvas {
+  background-color: #000;
+  border: none;  /* Removed border */
+  backdrop-filter: blur(8px);
+  animation: dream-background 20s linear infinite, fadeIn 1s ease-in;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  margin: 20px;
+  /* Add more space around canvas */
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* Add enemy glow effect styles */
+.enemy-glow {
+  filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.7));
+}
+
+/* Game over screen */
+#gameOver {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  padding: 20px;
+  border-radius: 10px;
+}
+
+/* Button styles */
+#restartButton {
+  padding: 10px 20px;
+  font-size: 16px;
+  background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #ffe66d, #ff6b6b);
+  background-size: 300% 300%;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  animation: rainbow 5s ease infinite;
+  transition: all 0.3s ease;
+}
+
+#restartButton:hover {
+  transform: translateY(-4px) scale(1.05);
+}
+
+/* Utility classes */
+.hidden {
+  display: none;
+}
+
+.block {
+  transition: all 0.3s ease;
+  background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+}
+
+.block:hover {
+  transform: scale(1.05);
+}
+
+/* Boss health bar */
+.health-bar {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 5px;
+  padding: 5px;
+}
+
+/* Boss health display placed in the outer box */
+.boss-health-outside {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 10px auto;
+  text-align: center;
+  color: #ff3333;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 5px 10px;
+  border-radius: 5px;
+  width: fit-content;
+  margin-bottom: 15px;
+}
+
+/* Effect timers */
+.effect-timer {
+  position: absolute;
+  top: 40px;
+  left: 10px;
+  color: white;
+  font-size: 14px;
+  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Add timer display styles */
+.timer {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    color: white;
+    font-size: 14px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes rainbow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes dream-background {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Responsive design for smaller screens */
+@media screen and (max-width: 600px) {
+  #gameCanvas {
+    width: 100%;
+    height: auto;
+  }
+  .game-container {
+    padding: 10px;
+  }
+  .score-container {
+    font-size: 16px;
+  }
+}
