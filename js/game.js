@@ -489,6 +489,57 @@ document.addEventListener('keydown', (event) => {
     dy = newDy;
 });
 
+// Add mobile control handlers after keyboard event listeners
+function handleDirectionChange(newDx, newDy) {
+    if (!reverseControls) {
+        if (newDy === -1 && dy !== 1) { dx = 0; dy = -1; }
+        if (newDy === 1 && dy !== -1) { dx = 0; dy = 1; }
+        if (newDx === -1 && dx !== 1) { dx = -1; dy = 0; }
+        if (newDx === 1 && dx !== -1) { dx = 1; dy = 0; }
+    } else {
+        if (newDy === -1 && dy !== -1) { dx = 0; dy = 1; }
+        if (newDy === 1 && dy !== 1) { dx = 0; dy = -1; }
+        if (newDx === -1 && dx !== -1) { dx = 1; dy = 0; }
+        if (newDx === 1 && dx !== 1) { dx = -1; dy = 0; }
+    }
+}
+
+// Add touch controls
+const upBtn = document.getElementById('upBtn');
+const downBtn = document.getElementById('downBtn');
+const leftBtn = document.getElementById('leftBtn');
+const rightBtn = document.getElementById('rightBtn');
+
+// Handle both touch and click events
+['touchstart', 'click'].forEach(eventType => {
+    upBtn.addEventListener(eventType, (e) => {
+        e.preventDefault();
+        handleDirectionChange(0, -1);
+    });
+
+    downBtn.addEventListener(eventType, (e) => {
+        e.preventDefault();
+        handleDirectionChange(0, 1);
+    });
+
+    leftBtn.addEventListener(eventType, (e) => {
+        e.preventDefault();
+        handleDirectionChange(-1, 0);
+    });
+
+    rightBtn.addEventListener(eventType, (e) => {
+        e.preventDefault();
+        handleDirectionChange(1, 0);
+    });
+});
+
+// Prevent default touch behavior to avoid scrolling while playing
+document.addEventListener('touchmove', (e) => {
+    if (e.target.classList.contains('control-btn')) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
 document.getElementById('restartButton').addEventListener('click', resetGame);
 
 resetGame();
@@ -925,11 +976,55 @@ function moveEnemies() {
 
 // Make canvas responsive on window resize
 window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth * 0.8;
-    canvas.height = window.innerHeight * 0.8;
-    /* Optionally, recalc tileCount if needed:
-       tileCount = canvas.width / gridSize;
-    */
+    const container = document.querySelector('.game-container');
+    const containerRect = container.getBoundingClientRect();
+    
+    // Maintain 3:2 aspect ratio
+    const aspectRatio = 3/2;
+    
+    // Calculate optimal dimensions
+    let newWidth, newHeight;
+    
+    if (window.innerWidth <= 768) {
+        // Mobile portrait
+        newWidth = containerRect.width;
+        newHeight = newWidth / aspectRatio;
+        
+        // Check if height is too large for screen
+        if (newHeight > window.innerHeight - 300) {
+            newHeight = window.innerHeight - 300;
+            newWidth = newHeight * aspectRatio;
+        }
+    } else {
+        // Desktop or landscape
+        newWidth = Math.min(600, containerRect.width);
+        newHeight = newWidth / aspectRatio;
+    }
+
+    // Update canvas size
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+
+    // Update grid size proportionally
+    gridSize = Math.floor(newWidth / 30); // 30 tiles across
+    tileCount = Math.floor(newWidth / gridSize);
+
+    // Scale UI elements
+    UI_TEXT.position.x = 10;
+    UI_TEXT.position.y = newHeight - 10;
+    UI_TEXT.font = `${Math.max(12, Math.floor(newWidth / 40))}px Arial`;
+
+    // Redraw game
+    if (game) {
+        game.draw();
+    }
+});
+
+// Add orientation change handler
+window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+    }, 100);
 });
 
 // NEW: Define spawn margin for outer box (in pixels)
@@ -1031,3 +1126,40 @@ function moveProjectiles() {
         }
     });
 }
+
+// Update the window resize handler
+window.addEventListener('resize', () => {
+    // Get the game container dimensions
+    const container = document.querySelector('.game-container');
+    const containerWidth = container.clientWidth - 40; // Account for padding
+    const containerHeight = window.innerHeight < 768 ? 
+        window.innerHeight - 300 : // Mobile view
+        400; // Desktop view
+
+    // Maintain aspect ratio
+    const aspectRatio = 600/400;
+    let newWidth = containerWidth;
+    let newHeight = containerWidth / aspectRatio;
+
+    // Adjust if height is too large
+    if (newHeight > containerHeight) {
+        newHeight = containerHeight;
+        newWidth = containerHeight * aspectRatio;
+    }
+
+    // Update canvas size
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+
+    // Update grid size to maintain proportions
+    gridSize = newWidth / 30; // 30 tiles across
+    tileCount = Math.floor(newWidth / gridSize);
+
+    // Redraw game
+    if (game) {
+        game.draw();
+    }
+});
+
+// Add initial size setup call
+window.dispatchEvent(new Event('resize'));

@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="ScreenOrientation" content="autoRotate:disabled">
     <title>Ultimate Snake Game</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -21,6 +22,14 @@
             <div id="gameOver" class="hidden">
                 <h2>Game Over!</h2>
                 <button id="restartButton">Play Again</button>
+            </div>
+            <div id="mobileControls" class="mobile-controls">
+                <button id="upBtn" class="control-btn">⬆️</button>
+                <div class="horizontal-controls">
+                    <button id="leftBtn" class="control-btn">⬅️</button>
+                    <button id="rightBtn" class="control-btn">➡️</button>
+                </div>
+                <button id="downBtn" class="control-btn">⬇️</button>
             </div>
         </div>
     </div>
