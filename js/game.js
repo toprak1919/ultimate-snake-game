@@ -122,6 +122,26 @@ let isPaused = false;
 const eatSound = document.getElementById('eatSound');
 const gameOverSound = document.getElementById('gameOverSound');
 
+// Add near other game state variables
+const achievements = [
+    {
+        id: 'eat_5_food_30s',
+        description: 'Eat 5 foods in 30 seconds',
+        target: 5,
+        currentCount: 0,
+        timeWindow: 30000,
+        startTime: null,
+        achieved: false
+    },
+    {
+        id: 'survive_2min',
+        description: 'Survive for 2 minutes',
+        timeTarget: 120000,
+        startTime: null,
+        achieved: false
+    }
+];
+
 class Game {
     constructor() {
         this.particles = [];
@@ -241,31 +261,31 @@ function drawGame() {
     
     if (isPaused) {
         requestAnimationFrame(drawGame);
-        return; // Skip updates when paused
+        return;
     }
     
     game.update();
     moveSnake();
-    moveEnemies();  // NEW: update enemy positions
+    moveEnemies();
     
-    // Check for collisions and game over conditions
     if (checkGameOver() || checkEnemyCollision()) {
         cancelAnimationFrame(gameLoop);
         return;
     }
     
     checkFoodCollision();
-    updateSpecialFoodSpawn(); // New function
-    
-    // Update enemies and projectiles
+    updateSpecialFoodSpawn();
     updateEnemies();
     updateProjectiles();
     updateBoss();
     
-    // Draw UI elements
+    // Add new feature updates
+    checkAchievements();
+    drawMiniMap();
+    
     updateBossHealthBar();
     drawEffectTimers();
-    updateUI(); // Add this at the end before requestAnimationFrame
+    updateUI();
     
     requestAnimationFrame(drawGame);
 }
@@ -332,7 +352,6 @@ function moveSnake() {
 function checkFoodCollision() {
     let foodEaten = false;
     
-    // Normal food collision
     if (snake[0].x === food.x && snake[0].y === food.y) {
         generateFood();
         increaseScore();
@@ -347,6 +366,12 @@ function checkFoodCollision() {
         const pixelX = food.x * gridSize;
         const pixelY = food.y * gridSize;
         createFloatingText("+10", pixelX, pixelY);
+        
+        // Track achievement progress
+        const eatAchievement = achievements.find(a => a.id === 'eat_5_food_30s');
+        if (eatAchievement) {
+            eatAchievement.currentCount++;
+        }
     }
 
     // Special food collision (independent of normal food)
@@ -470,6 +495,13 @@ function resetGame() {
     // Reset game loop
     resetGameLoop();
     updateUI();
+    
+    // Reset achievements
+    achievements.forEach(achievement => {
+        achievement.currentCount = 0;
+        achievement.startTime = null;
+        achievement.achieved = false;
+    });
 }
 
 // Update resetGameLoop to properly handle animation frame
@@ -1145,3 +1177,90 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isPaused) togglePause();
     });
 });
+
+// Add achievement tracking function
+function checkAchievements() {
+    const now = Date.now();
+    
+    achievements.forEach(achievement => {
+        if (achievement.achieved) return;
+        
+        if (achievement.id === 'eat_5_food_30s') {
+            if (!achievement.startTime) {
+                achievement.startTime = now;
+            }
+            
+            if (now - achievement.startTime <= achievement.timeWindow) {
+                if (achievement.currentCount >= achievement.target) {
+                    achievement.achieved = true;
+                    showAchievementPopup(achievement.description);
+                }
+            } else {
+                achievement.currentCount = 0;
+                achievement.startTime = now;
+            }
+        }
+        
+        if (achievement.id === 'survive_2min') {
+            if (!achievement.startTime) {
+                achievement.startTime = now;
+            }
+            
+            if (now - achievement.startTime >= achievement.timeTarget) {
+                achievement.achieved = true;
+                showAchievementPopup(achievement.description);
+            }
+        }
+    });
+}
+
+// Add achievement popup function
+function showAchievementPopup(description) {
+    const popup = document.getElementById('achievementPopup');
+    popup.textContent = `Achievement Unlocked: ${description}`;
+    popup.classList.remove('hidden');
+    popup.classList.add('show');
+    
+    setTimeout(() => {
+        popup.classList.remove('show');
+        setTimeout(() => {
+            popup.classList.add('hidden');
+        }, 500);
+    }, 3000);
+}
+
+// Add mini-map drawing function
+function drawMiniMap() {
+    const miniCanvas = document.getElementById('miniMap');
+    if (!miniCanvas) return;
+    
+    const mCtx = miniCanvas.getContext('2d');
+    mCtx.clearRect(0, 0, miniCanvas.width, miniCanvas.height);
+    
+    const scaleX = miniCanvas.width / tileCountX;
+    const scaleY = miniCanvas.height / tileCountY;
+    
+    // Draw snake
+    mCtx.fillStyle = '#0f0';
+    snake.forEach(segment => {
+        mCtx.fillRect(segment.x * scaleX, segment.y * scaleY, scaleX, scaleY);
+    });
+    
+    // Draw food
+    mCtx.fillStyle = '#f00';
+    mCtx.fillRect(food.x * scaleX, food.y * scaleY, scaleX, scaleY);
+    
+    // Draw special food if exists
+    if (specialFood) {
+        mCtx.fillStyle = specialFood.color;
+        mCtx.fillRect(specialFood.x * scaleX, specialFood.y * scaleY, scaleX, scaleY);
+    }
+    
+    // Draw enemies
+    mCtx.fillStyle = '#ff3333';
+    enemies.forEach(enemy => {
+        if (enemy) {
+            mCtx.fillRect(enemy.x * scaleX, enemy.y * scaleY, scaleX, scaleY);
+        }
+    });
+}

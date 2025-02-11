@@ -504,3 +504,31 @@ body {
     0%   { background-position: 0 0; }
     100% { background-position: -8000px 0; }
 }
+
+/* Achievement Popup Styles */
+#achievementPopup {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+    opacity: 0;
+}
+
+#achievementPopup.show {
+    opacity: 1;
+}
+
+/* Mini-Map Styles */
+#miniMap {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid #fff;
+    z-index: 999;
+}
