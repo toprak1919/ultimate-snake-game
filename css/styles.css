@@ -1,28 +1,21 @@
+/* --------------------------------------------------
+   1. ROOT + FONTS + BODY
+   -------------------------------------------------- */
 /* Game Boy color palette */
 :root {
     --gb-darkest: #0f380f;   /* darkest green */
     --gb-dark: #306230;      /* dark green */
     --gb-light: #8bac0f;     /* medium green */
     --gb-lightest: #9bbc0f;  /* lightest green */
-    --primary-color: #ff6b6b;
-    --secondary-color: #4ecdc4;
-    --accent-color: #ffe66d;
-    --background-color: #2c3e50;
-    --rainbow-colors: linear-gradient(
-        124deg,
-        #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840,
-        #1ddde8, #2b1de8, #dd00f3, #dd00f3
-    );
 }
 
-/* Main body and container styles */
-body {
-    background: #3b2f2f;
+html, body {
     margin: 0;
-    padding: 20px;
+    padding: 0;
+    background: #3b2f2f;
     font-family: 'Press Start 2P', monospace;
+    color: #fff;
     overflow-x: hidden;
-    color: var(--gb-darkest);
 }
 
 .gameboy-container {
@@ -38,7 +31,9 @@ body {
     box-shadow: 0 0 30px rgba(0,0,0,0.6);
 }
 
-/* Top Stats Bar */
+/* --------------------------------------------------
+   2. TOP BAR (SCORE, SPEED, NEXT FOOD)
+   -------------------------------------------------- */
 .gameboy-top-bar {
     width: 100%;
     display: flex;
@@ -47,18 +42,22 @@ body {
     background: var(--gb-light);
     border-radius: 4px;
     margin-bottom: 6px;
-    color: #fff;
     font-size: 10px;
-    text-shadow: 1px 1px var(--gb-darkest);
+    color: #fff;
+    text-shadow: 1px 1px #000;
 }
 
-#scoreSection, #speedAndFoodSection {
+#scoreSection,
+#speedAndFoodSection {
     padding: 4px 6px;
     background: var(--gb-dark);
     border-radius: 3px;
+    text-align: center;
 }
 
-/* Main Screen Area */
+/* --------------------------------------------------
+   3. GAME SCREEN
+   -------------------------------------------------- */
 .gameboy-screen {
     position: relative;
     width: 100%;
@@ -80,7 +79,59 @@ body {
     box-shadow: inset 0 0 3px #000;
 }
 
-/* Controls Panel */
+.overlay {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    background: rgba(0, 0, 0, 0.75);
+    border: 2px solid var(--gb-dark);
+    border-radius: 6px;
+    width: 70%;
+    padding: 10px;
+    font-size: 12px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#restartButton {
+    margin-top: 8px;
+    padding: 6px 10px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #fff;
+    background: var(--gb-dark);
+    border: 2px solid var(--gb-light);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#achievementPopup {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.8);
+    border: 2px solid var(--gb-dark);
+    border-radius: 4px;
+    color: #fff;
+    padding: 8px;
+    font-size: 10px;
+    width: 120px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 9999;
+}
+
+#achievementPopup.show {
+    opacity: 1;
+}
+
+/* --------------------------------------------------
+   4. CONTROLS PANEL (BOTTOM)
+   -------------------------------------------------- */
 .gameboy-controls-panel {
     width: 100%;
     display: flex;
@@ -91,13 +142,12 @@ body {
     border-radius: 4px;
 }
 
-/* Mini-map */
 .mini-map-wrapper {
     width: 120px;
     height: 80px;
+    background: var(--gb-darkest);
     border: 2px solid var(--gb-dark);
     border-radius: 4px;
-    background: var(--gb-darkest);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -110,7 +160,6 @@ body {
     border: 1px solid var(--gb-light);
 }
 
-/* D-Pad and Controls */
 .dpad-and-pause {
     display: flex;
     flex-direction: column;
@@ -158,36 +207,14 @@ body {
     cursor: pointer;
 }
 
-/* Overlays */
-#gameOver, #pauseOverlay {
-    position: absolute;
-    background: rgba(0, 0, 0, 0.75);
-    color: #fff;
-    padding: 10px;
-    border: 2px solid var(--gb-light);
-    border-radius: 6px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    font-size: 12px;
-    width: 70%;
-}
-
-#restartButton {
-    margin-top: 8px;
-    padding: 6px 10px;
-    border: 2px solid var(--gb-dark);
+.pause-btn:active {
     background: var(--gb-dark);
-    color: #fff;
-    cursor: pointer;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 10px;
-    border-radius: 4px;
 }
 
-/* Boss Health Display */
-#bossHealthDisplay {
+/* --------------------------------------------------
+   5. BOSS HEALTH
+   -------------------------------------------------- */
+.boss-health-display {
     margin-top: 4px;
     font-size: 10px;
     color: #fff;
@@ -195,9 +222,10 @@ body {
     border: 2px solid var(--gb-light);
     border-radius: 4px;
     padding: 3px 6px;
+    text-align: center;
 }
 
-#bossHealthContainer {
+.boss-health-container {
     width: 90%;
     max-width: 300px;
     height: 14px;
@@ -215,7 +243,9 @@ body {
     transition: width 0.25s ease;
 }
 
-/* Achievement and Floating Text */
+/* --------------------------------------------------
+   6. FLOATING TEXT (for +10 points)
+   -------------------------------------------------- */
 .floating-text {
     position: absolute;
     font-size: 12px;
@@ -226,572 +256,34 @@ body {
     animation: floatUp 1s ease-out forwards;
 }
 
-#achievementPopup {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(0,0,0,0.7);
-    border: 2px solid var(--gb-light);
-    border-radius: 4px;
-    color: #fff;
-    padding: 8px;
-    font-size: 10px;
-    width: 120px;
-    text-align: center;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    z-index: 9999;
-}
-
-#achievementPopup.show {
-    opacity: 1;
-}
-
-/* Animations */
 @keyframes floatUp {
-    0% {
-        transform: translate(-50%, 0);
-        opacity: 1;
-    }
-    100% {
-        transform: translate(-50%, -20px);
-        opacity: 0;
-    }
+    0%   { transform: translate(-50%, 0);   opacity: 1; }
+    100% { transform: translate(-50%, -20px); opacity: 0; }
 }
 
-/* Responsive Design */
+/* --------------------------------------------------
+   7. RESPONSIVE TWEAKS
+   -------------------------------------------------- */
 @media (max-width: 480px) {
     .gameboy-container {
         border-width: 4px;
         padding: 4px;
     }
-
     .gameboy-top-bar {
         font-size: 8px;
     }
-
-    .mini-map-wrapper {
-        width: 100px;
-        height: 70px;
-    }
-
     .control-btn {
         width: 30px;
         height: 30px;
         font-size: 12px;
     }
-}
-
-/* Base styles */
-body {
-  margin: 0;
-  padding: 0;
-  background: url('https://via.placeholder.com/800x600/1e3c72/ffffff?text=BG') repeat;
-  background-size: 800px 600px; 
-  animation: bgScroll 60s linear infinite;
-  font-family: Arial, sans-serif;
-  color: #fff;
-  overflow-x: hidden;
-}
-
-.top-ui-container {
-  width: 100%;
-  text-align: center;
-  padding: 10px 0;
-  background: rgba(0, 0, 0, 0.4);
-}
-
-/* Main game container (inner box) */
-.game-container {
-  position: relative;
-  animation: fadeIn 0.5s ease-in;
-  background: var(--background-color);
-  padding: 20px;
-  border-radius: 10px;
-  width: 100%;
-  max-width: 100%;
-  aspect-ratio: 3/2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-sizing: border-box;
-  margin: 0 auto;
-}
-
-/* Outer box (second box) that wraps the main game box */
-.outer-box {
-  max-width: 700px;
-  margin: 20px auto;
-  border: 2px solid #ffe66d;
-  border-radius: 15px;
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.9), rgba(39, 60, 117, 0.9));
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-  padding: 15px;
-}
-
-/* Remove or comment out the old score container styles */
-.score-container {
-  display: none; /* Hide old score container */
-}
-
-#gameCanvas {
-  background-color: #000;
-  border: none;  /* Removed border */
-  backdrop-filter: blur(8px);
-  animation: dream-background 20s linear infinite, fadeIn 1s ease-in;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-  margin: 20px;
-  /* Add more space around canvas */
-  padding: 10px;
-  border-radius: 5px;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  max-height: calc(100vh - 200px);
-  margin: 0;
-  padding: 0;
-}
-
-/* Add enemy glow effect styles */
-.enemy-glow {
-  filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.7));
-}
-
-/* Game over screen */
-#gameOver {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  color: white;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  padding: 20px;
-  border-radius: 10px;
-}
-
-/* Button styles */
-#restartButton {
-  padding: 10px 20px;
-  font-size: 16px;
-  background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #ffe66d, #ff6b6b);
-  background-size: 300% 300%;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  animation: rainbow 5s ease infinite;
-  transition: all 0.3s ease;
-}
-
-#restartButton:hover {
-  transform: translateY(-4px) scale(1.05);
-}
-
-/* Utility classes */
-.hidden {
-  display: none;
-}
-
-.block {
-  transition: all 0.3s ease;
-  background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-}
-
-.block:hover {
-  transform: scale(1.05);
-}
-
-/* Boss health bar */
-.health-bar {
-  display: none; /* or remove entirely */
-}
-
-/* Boss health display placed in the outer box */
-.boss-health-outside {
-  font-size: 18px;
-  font-weight: bold;
-  margin: 10px auto;
-  text-align: center;
-  color: #ff3333;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 5px 10px;
-  border-radius: 5px;
-  width: fit-content;
-  margin-bottom: 15px;
-}
-
-/* Effect timers */
-.effect-timer {
-  position: absolute;
-  top: 40px;
-  left: 10px;
-  color: white;
-  font-size: 14px;
-  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
-}
-
-/* Add timer display styles */
-.timer {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    color: white;
-    font-size: 14px;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 5px 10px;
-    border-radius: 5px;
-}
-
-/* Mobile Controls */
-.mobile-controls {
-    display: none; /* Hidden by default, shown on mobile */
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 180px;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-}
-
-.horizontal-controls {
-    display: flex;
-    gap: 60px;
-}
-
-.control-btn {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    border: 2px solid var(--accent-color);
-    font-size: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.control-btn:active {
-    background: rgba(255, 255, 255, 0.4);
-    transform: scale(0.95);
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
-}
-
-@keyframes slideIn {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(0); }
-}
-
-@keyframes rainbow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes dream-background {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes bgScroll {
-  0% {
-    background-position: 0 0;
-  }
-  100% {
-    background-position: -8000px 0;
-  }
-}
-
-/* Responsive design for smaller screens */
-@media screen and (max-width: 600px) {
-  #gameCanvas {
-    width: 100%;
-    height: auto;
-  }
-  .game-container {
-    padding: 10px;
-  }
-  .score-container {
-    font-size: 16px;
-  }
-}
-
-/* Responsive design for smaller screens */
-@media screen and (max-width: 768px) {
-    .outer-box {
-        min-width: auto;
-        width: 95%;
-        margin: 10px;
-        padding: 10px;
+    .mini-map-wrapper {
+        width: 100px;
+        height: 70px;
     }
-
-    .game-container {
-        padding: 10px;
-        width: 100%;
-        max-height: calc(100vh - 200px);
-    }
-
-    #gameCanvas {
-        width: 100%;
-        height: auto;
-        aspect-ratio: 3/2;
-        max-height: calc(100vh - 300px);
-    }
-
-    .score-container {
-        font-size: 14px;
-        padding: 5px;
-    }
-
-    .mobile-controls {
-        bottom: 10px;
-        width: 160px;
-    }
-
-    .control-btn {
-        width: 50px;
-        height: 50px;
-        font-size: 20px;
-    }
-
-    .horizontal-controls {
-        gap: 40px;
-    }
-
-    #bossHealthContainer {
-        width: 80%;
-        margin: 0 auto 20px;
-    }
-    
-    #bossHealthDisplay {
-        font-size: 16px;
+    #miniMap {
+        width: 90%;
+        height: 80%;
     }
 }
 
-/* Landscape mode adjustments */
-@media screen and (max-width: 768px) and (orientation: landscape) {
-    body {
-        align-items: flex-start;
-        padding-top: 10px;
-    }
-
-    .game-container {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        aspect-ratio: auto;
-        height: calc(100vh - 40px);
-    }
-
-    #gameCanvas {
-        height: 100%;
-        width: auto;
-        max-width: calc(100vw - 200px);
-    }
-
-    .mobile-controls {
-        position: relative;
-        bottom: auto;
-        right: auto;
-        margin-left: 20px;
-        transform: none;
-        left: auto;
-        bottom: auto;
-        margin: 0 10px;
-    }
-}
-
-/* Show mobile controls on touch devices */
-@media (hover: none) and (pointer: coarse) {
-    .mobile-controls {
-        display: flex;
-    }
-
-    .game-container {
-        margin-bottom: 200px; /* Make room for controls */
-    }
-}
-
-/* Add new boss health styles */
-#bossHealthDisplay {
-    margin: 0 auto 8px;
-    text-align: center;
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #ff3333;
-    background: rgba(0, 0, 0, 0.4);
-    padding: 5px 10px;
-    border-radius: 5px;
-    width: fit-content;
-}
-
-#bossHealthContainer {
-    width: 60%;
-    max-width: 400px;
-    height: 20px;
-    margin: 0 auto 20px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5) inset;
-    overflow: hidden;
-}
-
-#bossHealthBar {
-    height: 100%;
-    width: 100%;
-    background: linear-gradient(90deg, #ff0000, #ff6b6b);
-    transition: width 0.25s ease;
-}
-
-/* Floating Score Text Styles & Animation */
-.floating-text {
-  position: absolute;
-  font-size: 18px;
-  font-weight: bold;
-  color: #fff;
-  pointer-events: none;
-  animation: floatUp 1s ease-out forwards;
-}
-
-@keyframes floatUp {
-  0% {
-    transform: translate(-50%, 0);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(-50%, -40px);
-    opacity: 0;
-  }
-}
-
-/* Pause Button Styles */
-#pauseButton {
-    padding: 8px 16px;
-    font-size: 14px;
-    background: #444;
-    color: #fff;
-    border: 2px solid #aaa;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-left: 10px;
-}
-
-#pauseButton:hover {
-    background: #555;
-}
-
-/* Pause Overlay Styles */
-#pauseOverlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 20px;
-    border-radius: 10px;
-    color: #fff;
-    z-index: 1000;
-}
-
-#resumeButton {
-    padding: 8px 16px;
-    font-size: 14px;
-    background: #2ecc71;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-#resumeButton:hover {
-    background: #27ae60;
-}
-
-/* Add near the top, before other styles */
-.parallax-layer {
-    position: fixed;
-    top: 0; 
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-repeat: repeat;
-    background-size: 800px 600px;
-    z-index: -10;
-    pointer-events: none;
-}
-
-.layer1 {
-    background-image: url('https://via.placeholder.com/800x600/111111/ffffff?text=Layer1');
-    animation: parallaxScroll1 120s linear infinite;
-}
-
-.layer2 {
-    background-image: url('https://via.placeholder.com/800x600/333333/ffffff?text=Layer2');
-    animation: parallaxScroll2 60s linear infinite;
-}
-
-.layer3 {
-    background-image: url('https://via.placeholder.com/800x600/555555/ffffff?text=Layer3');
-    animation: parallaxScroll3 30s linear infinite;
-}
-
-@keyframes parallaxScroll1 {
-    0%   { background-position: 0 0; }
-    100% { background-position: -8000px 0; }
-}
-
-@keyframes parallaxScroll2 {
-    0%   { background-position: 0 0; }
-    100% { background-position: -8000px 0; }
-}
-
-@keyframes parallaxScroll3 {
-    0%   { background-position: 0 0; }
-    100% { background-position: -8000px 0; }
-}
-
-/* Achievement Popup Styles */
-#achievementPopup {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: rgba(0,0,0,0.8);
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 8px;
-    z-index: 9999;
-    transition: opacity 0.5s ease;
-    opacity: 0;
-}
-
-#achievementPopup.show {
-    opacity: 1;
-}
-
-/* Mini-Map Styles */
-#miniMap {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: rgba(0,0,0,0.5);
-    border: 1px solid #fff;
-    z-index: 999;
-}
