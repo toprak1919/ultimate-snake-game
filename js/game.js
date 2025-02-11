@@ -1,11 +1,9 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-canvas.width = 600;
-canvas.height = 400;
-
-const gridSize = 20;
-const tileCount = canvas.width / gridSize;
+let gridSize = 20;
+let tileCountX = 0;
+let tileCountY = 0;
 
 let snake = [
     { x: 10, y: 10 }
@@ -251,7 +249,7 @@ function drawGame() {
     updateBoss();
     
     // Draw UI elements
-    drawBossHealthBar();
+    updateBossHealthBar();
     drawEffectTimers();
     drawSpeedAndFood(); // New function
     
@@ -341,9 +339,11 @@ function checkFoodCollision() {
 
 function generateFood() {
     food = {
-        x: Math.floor(Math.random() * tileCount),
-        y: Math.floor(Math.random() * (canvas.height / gridSize))
+        x: Math.floor(Math.random() * tileCountX),
+        y: Math.floor(Math.random() * tileCountY)
     };
+    
+    // Prevent food from spawning on snake
     if (snake.some(segment => segment.x === food.x && segment.y === food.y)) {
         generateFood();
     }
@@ -353,8 +353,8 @@ function generateFood() {
 function generateSpecialFood() {
     const type = Math.random() < 0.3 ? specialFoodTypes.DAMAGE_BOSS : specialFoodTypes.CLEAR_ENEMIES;
     specialFood = {
-        x: Math.floor(Math.random() * tileCount),
-        y: Math.floor(Math.random() * (canvas.height / gridSize)),
+        x: Math.floor(Math.random() * tileCountX),
+        y: Math.floor(Math.random() * tileCountY),
         type: type.effect,
         color: type.color,
         duration: type.duration,
@@ -368,6 +368,7 @@ function applySpecialFoodEffect(type) {
         if (boss.health <= 0) {
             handleBossDefeat();
         }
+        updateBossHealthBar();
         activeEffects.set('damage-boss', Date.now() + specialFoodTypes.DAMAGE_BOSS.duration);
     } else if (type === 'clear-enemies') {
         enemies = [];
@@ -377,9 +378,12 @@ function applySpecialFoodEffect(type) {
 
 function checkGameOver() {
     const head = snake[0];
-    if (head.x < 0 || head.x >= tileCount || 
-        head.y < 0 || head.y >= canvas.height / gridSize ||
-        snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)) {
+    
+    if (
+        head.x < 0 || head.x >= tileCountX ||
+        head.y < 0 || head.y >= tileCountY ||
+        snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)
+    ) {
         handleGameOver();
         return true;
     }
@@ -422,7 +426,7 @@ function resetGame() {
     lastSpecialFoodSpawn = Date.now();
     
     // Reset enemy
-    enemy.x = tileCount;
+    enemy.x = tileCountX;
     enemy.projectiles = [];
     
     // Reset UI
@@ -547,8 +551,6 @@ resetGame();
 // NEW: Define inner box boundaries for enemy spawn logic
 const innerMargin = 30; // pixels
 const innerMarginTiles = Math.ceil(innerMargin / gridSize);
-const tileCountX = canvas.width / gridSize;
-const tileCountY = canvas.height / gridSize;
 
 // Modified createEnemy: Enemies spawn in the outer ring and shoot toward inner box center
 function createEnemy() {
@@ -652,18 +654,16 @@ function createEnemy(type) {
     };
 
     if (type === enemyTypes.HORIZONTAL) {
-        // Randomly choose left or right side
-        enemy.x = Math.random() < 0.5 ? -1 : canvas.width / gridSize + 1;
-        enemy.y = Math.floor(Math.random() * (canvas.height / gridSize));
+        enemy.x = Math.random() < 0.5 ? -1 : tileCountX + 1;
+        enemy.y = Math.floor(Math.random() * tileCountY);
         enemy.shootDirection = enemy.x < 0 ? 1 : -1; // Shoot right if on left side, left if on right side
         // Horizontal oscillation
         enemy.movePattern = () => {
             enemy.x += Math.sin(Date.now() / 500) * 0.05;
         };
     } else {
-        enemy.x = Math.floor(Math.random() * (canvas.width / gridSize));
-        // Randomly choose top or bottom
-        enemy.y = Math.random() < 0.5 ? -1 : canvas.height / gridSize + 1;
+        enemy.x = Math.floor(Math.random() * tileCountX);
+        enemy.y = Math.random() < 0.5 ? -1 : tileCountY + 1;
         enemy.shootDirection = enemy.y < 0 ? 1 : -1; // Shoot down if on top, up if on bottom
         // Vertical oscillation
         enemy.movePattern = () => {
@@ -675,8 +675,8 @@ function createEnemy(type) {
     enemy.shoot = () => {
         const now = Date.now();
         if (now - enemy.lastShot > enemy.shootingInterval) {
-            const clampedX = Math.max(0, Math.min(enemy.x, tileCount - 1));
-            const clampedY = Math.max(0, Math.min(enemy.y, canvas.height / gridSize - 1));
+            const clampedX = Math.max(0, Math.min(enemy.x, tileCountX - 1));
+            const clampedY = Math.max(0, Math.min(enemy.y, tileCountY - 1));
             const projectile = {
                 x: clampedX * gridSize,
                 y: clampedY * gridSize,
@@ -816,18 +816,6 @@ function isColliding(projectile, segment) {
            projectile.x + projectile.width > segX &&
            projectile.y < segY + gridSize &&
            projectile.y + projectile.height > segY;
-}
-
-function updateBoss() {
-    const now = Date.now();
-    if (now - boss.lastSpawn > boss.spawnInterval && enemies.length < maxEnemies) {
-        enemies.push(createEnemy());
-        boss.lastSpawn = now;
-        
-        // Increase difficulty over time
-        boss.difficulty += 0.1;
-        boss.spawnInterval = Math.max(2000, boss.spawnInterval - 100);
-    }
 }
 
 function drawBossHealthBar() {
@@ -974,192 +962,60 @@ function moveEnemies() {
     }
 }
 
-// Make canvas responsive on window resize
-window.addEventListener('resize', () => {
-    const container = document.querySelector('.game-container');
-    const containerRect = container.getBoundingClientRect();
-    
-    // Maintain 3:2 aspect ratio
-    const aspectRatio = 3/2;
-    
-    // Calculate optimal dimensions
-    let newWidth, newHeight;
-    
-    if (window.innerWidth <= 768) {
-        // Mobile portrait
-        newWidth = containerRect.width;
-        newHeight = newWidth / aspectRatio;
-        
-        // Check if height is too large for screen
-        if (newHeight > window.innerHeight - 300) {
-            newHeight = window.innerHeight - 300;
-            newWidth = newHeight * aspectRatio;
-        }
-    } else {
-        // Desktop or landscape
-        newWidth = Math.min(600, containerRect.width);
-        newHeight = newWidth / aspectRatio;
-    }
-
-    // Update canvas size
-    canvas.width = newWidth;
-    canvas.height = newHeight;
-
-    // Update grid size proportionally
-    gridSize = Math.floor(newWidth / 30); // 30 tiles across
-    tileCount = Math.floor(newWidth / gridSize);
-
-    // Scale UI elements
-    UI_TEXT.position.x = 10;
-    UI_TEXT.position.y = newHeight - 10;
-    UI_TEXT.font = `${Math.max(12, Math.floor(newWidth / 40))}px Arial`;
-
-    // Redraw game
-    if (game) {
-        game.draw();
-    }
-});
-
-// Add orientation change handler
-window.addEventListener('orientationchange', () => {
-    setTimeout(() => {
-        window.dispatchEvent(new Event('resize'));
-    }, 100);
-});
-
-// NEW: Define spawn margin for outer box (in pixels)
-const spawnMargin = 15; // Adjust to match CSS padding
-const spawnMarginTiles = Math.ceil(spawnMargin / gridSize);
-
-// The inner game box (canvas) dimensions
-const innerTileCountX = canvas.width / gridSize;
-const innerTileCountY = canvas.height / gridSize;
-
-// Compute spawn area dimensions (canvas plus margins on all sides)
-const spawnAreaTilesX = innerTileCountX + 2 * spawnMarginTiles;
-const spawnAreaTilesY = innerTileCountY + 2 * spawnMarginTiles;
-
-// Revised createEnemy implementation for in-game shooting with projectile spawn clamping
-function createEnemy() {
-    const sides = ['top', 'bottom', 'left', 'right'];
-    const side = sides[Math.floor(Math.random() * sides.length)];
-    const enemy = {
-         width: gridSize,
-         height: gridSize,
-         speed: 3 + (boss.difficulty * 0.5),
-         color: 'red',
-         projectiles: [],
-         lastShot: 0,
-         shootingInterval: 2000 - (boss.difficulty * 100)
-    };
-
-    // Set enemy spawn coordinate outside the game box based on the chosen side
-    if (side === 'top') {
-         enemy.y = -spawnMarginTiles;
-         enemy.x = Math.floor(Math.random() * innerTileCountX);
-    } else if (side === 'bottom') {
-         enemy.y = innerTileCountY + spawnMarginTiles;
-         enemy.x = Math.floor(Math.random() * innerTileCountX);
-    } else if (side === 'left') {
-         enemy.x = -spawnMarginTiles;
-         enemy.y = Math.floor(Math.random() * innerTileCountY);
-    } else if (side === 'right') {
-         enemy.x = innerTileCountX + spawnMarginTiles;
-         enemy.y = Math.floor(Math.random() * innerTileCountY);
-    }
-    
-    // Compute a shooting direction toward the center (target inside the game box)
-    const targetX = Math.floor(innerTileCountX / 2);
-    const targetY = Math.floor(innerTileCountY / 2);
-    const diffX = targetX - enemy.x;
-    const diffY = targetY - enemy.y;
-    const mag = Math.sqrt(diffX * diffX + diffY * diffY) || 1;
-    enemy.shootDirection = { vx: diffX / mag, vy: diffY / mag };
-
-    // New shoot implementation: instantiate a projectile with starting position clamped to the game box.
-    enemy.shoot = () => {
-         const now = Date.now();
-         if (now - enemy.lastShot > enemy.shootingInterval) {
-             // Calculate initial projectile position from enemy
-             let projX = enemy.x * gridSize;
-             let projY = enemy.y * gridSize;
-             // Clamp so projectile is inside
-             projX = Math.max(0, Math.min(projX, canvas.width - 5));
-             projY = Math.max(0, Math.min(projY, canvas.height - 5));
-             const projectile = {
-                 x: projX,
-                 y: projY,
-                 width: 5,
-                 height: 5,
-                 vx: enemy.shootDirection.vx * 5,
-                 vy: enemy.shootDirection.vy * 5
-             };
-             enemy.projectiles.push(projectile);
-             enemy.lastShot = now;
-         }
-    };
-
-    // Enhance enemy appearance
-    enemy.width = gridSize * 1.2;
-    enemy.height = gridSize * 1.2;
-    enemy.color = '#ff3333';
-    return enemy;
+// Add this helper function near the top of the file
+function getTileCounts() {
+    const tileCountX = Math.floor(canvas.width / gridSize);
+    const tileCountY = Math.floor(canvas.height / gridSize);
+    return { tileCountX, tileCountY };
 }
 
-// Update moveProjectiles to move each projectile and remove those outside the main game box.
-function moveProjectiles() {
-    enemies.forEach(enemy => {
-        if (enemy && enemy.projectiles) {
-            // Move each projectile
-            enemy.projectiles.forEach(projectile => {
-                projectile.x += projectile.vx;
-                projectile.y += projectile.vy;
-            });
-
-            // Remove projectiles that are off screen
-            enemy.projectiles = enemy.projectiles.filter(projectile => {
-                return projectile.x >= 0 && 
-                       projectile.x <= canvas.width && 
-                       projectile.y >= 0 && 
-                       projectile.y <= canvas.height;
-            });
-        }
-    });
-}
-
-// Update the window resize handler
+// Replace any existing resize handlers with this consolidated one
 window.addEventListener('resize', () => {
-    // Get the game container dimensions
     const container = document.querySelector('.game-container');
     const containerWidth = container.clientWidth - 40; // Account for padding
-    const containerHeight = window.innerHeight < 768 ? 
-        window.innerHeight - 300 : // Mobile view
-        400; // Desktop view
-
-    // Maintain aspect ratio
-    const aspectRatio = 600/400;
+    const containerHeight = window.innerHeight < 768 ? window.innerHeight - 300 : 400;
+    
+    // Maintain 3:2 aspect ratio
+    const aspectRatio = 600 / 400;
     let newWidth = containerWidth;
-    let newHeight = containerWidth / aspectRatio;
-
-    // Adjust if height is too large
+    let newHeight = newWidth / aspectRatio;
+    
     if (newHeight > containerHeight) {
         newHeight = containerHeight;
-        newWidth = containerHeight * aspectRatio;
+        newWidth = newHeight * aspectRatio;
     }
-
-    // Update canvas size
+    
     canvas.width = newWidth;
     canvas.height = newHeight;
-
-    // Update grid size to maintain proportions
-    gridSize = newWidth / 30; // 30 tiles across
-    tileCount = Math.floor(newWidth / gridSize);
-
-    // Redraw game
-    if (game) {
-        game.draw();
+    
+    // Keep approximately 30 tiles across
+    gridSize = Math.floor(newWidth / 30);
+    
+    // Update tile counts
+    tileCountX = Math.floor(canvas.width / gridSize);
+    tileCountY = Math.floor(canvas.height / gridSize);
+    
+    // Force redraw if game is running
+    if (typeof draw === 'function') {
+        draw();
     }
 });
 
-// Add initial size setup call
+// Add this at the end of your initialization code
 window.dispatchEvent(new Event('resize'));
+
+// Add this new function to update the HTML health bar
+function updateBossHealthBar() {
+    // Update the text display
+    const bossHealthText = document.getElementById('bossHealthText');
+    if (bossHealthText) {
+        bossHealthText.textContent = `${boss.health} / ${boss.maxHealth}`;
+    }
+    
+    // Update the visual bar
+    const bossHealthBar = document.getElementById('bossHealthBar');
+    if (bossHealthBar) {
+        const percent = Math.max(0, (boss.health / boss.maxHealth) * 100);
+        bossHealthBar.style.width = percent + '%';
+    }
+}
