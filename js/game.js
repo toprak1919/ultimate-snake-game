@@ -69,8 +69,6 @@ const enemy = {
     }
 };
 
-document.getElementById('highScore').textContent = highScore;
-
 // Add speed display and food spawn text
 const UI_TEXT = {
     position: { x: 10, y: canvas.height - 10 },
