@@ -4,63 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="ScreenOrientation" content="autoRotate:disabled">
-    <title>Ultimate Snake Game</title>
+    <title>Ultimate Snake Game (Game Boy Style)</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
 </head>
 <body>
-    <div class="parallax-layer layer1"></div>
-    <div class="parallax-layer layer2"></div>
-    <div class="parallax-layer layer3"></div>
-
-    <div id="achievementPopup" class="hidden"></div>
-    
-    <canvas id="miniMap" width="150" height="100"></canvas>
-
-    <div class="top-ui-container">
-        <div id="scoreSection">
-            Score: <span id="scoreDisplay">0</span> | 
-            High Score: <span id="highScoreDisplay">0</span>
+    <div class="gameboy-container">
+        <!-- Top bar for score & speed -->
+        <div class="gameboy-top-bar">
+            <div id="scoreSection">
+                SCORE: <span id="scoreDisplay">0</span> |
+                HIGH: <span id="highScoreDisplay">0</span>
+            </div>
+            <div id="speedAndFoodSection">
+                SPEED: <span id="speedDisplay">1.0</span>x |
+                NEXT: <span id="foodCountdown">15</span>s
+            </div>
         </div>
-        
-        <div id="speedAndFoodSection">
-            Speed: <span id="speedDisplay">1.0</span>x |
-            Next Special Food: <span id="foodCountdown">15</span>s
-        </div>
-    </div>
 
-    <div class="outer-box">
-        <div class="game-container">
+        <!-- Main screen area -->
+        <div class="gameboy-screen">
             <canvas id="gameCanvas"></canvas>
             <div id="gameOver" class="hidden">
-                <h2>Game Over!</h2>
-                <button id="restartButton">Play Again</button>
+                <h2>GAME OVER!</h2>
+                <button id="restartButton">PLAY AGAIN</button>
             </div>
-            <div id="mobileControls" class="mobile-controls">
-                <button id="upBtn" class="control-btn">⬆️</button>
-                <div class="horizontal-controls">
-                    <button id="leftBtn" class="control-btn">⬅️</button>
-                    <button id="rightBtn" class="control-btn">➡️</button>
-                </div>
-                <button id="downBtn" class="control-btn">⬇️</button>
-            </div>
-            <button id="pauseButton">Pause</button>
+            <div id="achievementPopup" class="hidden"></div>
             <div id="pauseOverlay" class="hidden">
-                <h2>Game Paused</h2>
-                <button id="resumeButton">Resume</button>
+                <h2>PAUSED</h2>
+                <button id="resumeButton">RESUME</button>
             </div>
+        </div>
+
+        <!-- Control & Map Panel -->
+        <div class="gameboy-controls-panel">
+            <div class="mini-map-wrapper">
+                <canvas id="miniMap" width="140" height="90"></canvas>
+            </div>
+
+            <div class="dpad-and-pause">
+                <div id="mobileControls" class="mobile-controls">
+                    <button id="upBtn" class="control-btn">▲</button>
+                    <div class="horizontal-controls">
+                        <button id="leftBtn" class="control-btn">◀</button>
+                        <button id="rightBtn" class="control-btn">▶</button>
+                    </div>
+                    <button id="downBtn" class="control-btn">▼</button>
+                </div>
+                <button id="pauseButton" class="pause-btn">PAUSE</button>
+            </div>
+        </div>
+
+        <!-- Boss health display -->
+        <div id="bossHealthDisplay" class="boss-health-outside">
+            Boss Health: <span id="bossHealthText">100 / 100</span>
+        </div>
+        <div id="bossHealthContainer">
+            <div id="bossHealthBar"></div>
         </div>
     </div>
 
-    <div id="bossHealthDisplay" class="boss-health-outside">
-        Boss Health: <span id="bossHealthText">100 / 100</span>
-    </div>
-    <div id="bossHealthContainer">
-        <div id="bossHealthBar"></div>
-    </div>
-    
     <audio id="eatSound" src="assets/sounds/eat.wav" preload="auto"></audio>
     <audio id="gameOverSound" src="assets/sounds/gameover.wav" preload="auto"></audio>
-    
+
     <script src="js/animations.js"></script>
     <script src="js/game.js"></script>
 </body>
