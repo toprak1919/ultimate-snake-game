@@ -12,14 +12,28 @@
 
 /* Base styles */
 body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
   margin: 0;
-  background: var(--background-color);
-  color: #fff;
+  padding: 0;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
   font-family: Arial, sans-serif;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+.top-ui-container {
+  width: 100%;
+  text-align: center;
+  padding: 10px 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+#scoreSection, #speedAndFoodSection {
+  display: inline-block;
+  margin: 0 15px;
+  padding: 8px 15px;
+  background: rgba(0,0,0,0.25);
+  border-radius: 6px;
+  font-size: 1.1rem;
 }
 
 /* Main game container (inner box) */
@@ -41,24 +55,18 @@ body {
 
 /* Outer box (second box) that wraps the main game box */
 .outer-box {
-  border: 3px solid var(--accent-color);
+  max-width: 700px;
+  margin: 20px auto;
+  border: 2px solid #ffe66d;
+  border-radius: 15px;
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.9), rgba(39, 60, 117, 0.9));
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
   padding: 15px;
-  border-radius: 10px;
-  margin: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  width: 95%;
 }
 
+/* Remove or comment out the old score container styles */
 .score-container {
-  display: flex;
-  justify-content: space-between;
-  color: var(--accent-color);
-  padding: 10px;
-  font-size: 20px;
-  animation: pulse 1.5s infinite;
+  display: none; /* Hide old score container */
 }
 
 #gameCanvas {
@@ -348,35 +356,31 @@ body {
 
 /* Add new boss health styles */
 #bossHealthDisplay {
-    margin: 0 auto 10px;
+    margin: 0 auto 8px;
     text-align: center;
-    font-size: 20px;
+    font-size: 1.2rem;
     font-weight: bold;
-    color: var(--primary-color);
-    background: rgba(0, 0, 0, 0.5);
+    color: #ff3333;
+    background: rgba(0, 0, 0, 0.4);
     padding: 5px 10px;
     border-radius: 5px;
     width: fit-content;
 }
 
 #bossHealthContainer {
-    width: 50%;
+    width: 60%;
     max-width: 400px;
     height: 20px;
-    margin: 0 auto 30px;
-    background: rgba(255, 255, 255, 0.1);
+    margin: 0 auto 20px;
+    background: rgba(255,255,255,0.1);
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) inset;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5) inset;
     overflow: hidden;
-    position: relative;
 }
 
 #bossHealthBar {
     height: 100%;
     width: 100%;
-    background: linear-gradient(90deg, var(--primary-color), #ff6b6b);
+    background: linear-gradient(90deg, #ff0000, #ff6b6b);
     transition: width 0.25s ease;
-    position: absolute;
-    left: 0;
-    top: 0;
 }

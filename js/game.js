@@ -113,6 +113,9 @@ const VISUAL_SETTINGS = {
     }
 };
 
+// Add these constants near the top of your file
+const BASE_MOVES_PER_SECOND = 6;
+
 class Game {
     constructor() {
         this.particles = [];
@@ -251,9 +254,9 @@ function drawGame() {
     // Draw UI elements
     updateBossHealthBar();
     drawEffectTimers();
-    drawSpeedAndFood(); // New function
+    updateUI(); // Add this at the end before requestAnimationFrame
     
-    gameLoop = requestAnimationFrame(drawGame);
+    requestAnimationFrame(drawGame);
 }
 
 // NEW: Draw the game outer box on canvas
@@ -396,14 +399,14 @@ function handleGameOver() {
     if (score > highScore) {
         highScore = score;
         localStorage.setItem('snakeHighScore', highScore);
-        document.getElementById('highScore').textContent = highScore;
+        document.getElementById('highScoreDisplay').textContent = highScore;
     }
 }
 
 // Update increaseScore function
 function increaseScore() {
     score += CONFIG.FOOD_SCORE;
-    document.getElementById('score').textContent = score;
+    document.getElementById('scoreDisplay').textContent = score;
     
     // Slower speed increase every 50 points
     if (score % 50 === 0) {
@@ -430,7 +433,7 @@ function resetGame() {
     enemy.projectiles = [];
     
     // Reset UI
-    document.getElementById('score').textContent = '0';
+    document.getElementById('scoreDisplay').textContent = '0';
     document.getElementById('gameOver').classList.add('hidden');
     
     // Reset game state
@@ -443,6 +446,7 @@ function resetGame() {
     
     // Reset game loop
     resetGameLoop();
+    updateUI();
 }
 
 // Update resetGameLoop to properly handle animation frame
@@ -915,21 +919,37 @@ function updateSpecialFood() {
 }
 
 // Add new UI drawing function
-function drawSpeedAndFood() {
-    ctx.fillStyle = UI_TEXT.color;
-    ctx.font = UI_TEXT.font;
-    
-    // Draw speed
-    const speedText = `Speed: ${Math.floor(1000/gameSpeed)}x`;
-    ctx.fillText(speedText, UI_TEXT.position.x, UI_TEXT.position.y);
-    
-    // Draw special food timer
-    if (!specialFood) {
-        const nextSpawn = Math.max(0, Math.ceil((CONFIG.SPECIAL_FOOD_INTERVAL - (Date.now() - lastSpecialFoodSpawn))/1000));
-        ctx.fillText(`Next special food: ${nextSpawn}s`, UI_TEXT.position.x, UI_TEXT.position.y - 20);
-    } else {
-        const timeLeft = Math.ceil((specialFood.spawnTime + CONFIG.SPECIAL_FOOD_DURATION - Date.now())/1000);
-        ctx.fillText(`Special food disappears in: ${timeLeft}s`, UI_TEXT.position.x, UI_TEXT.position.y - 20);
+function updateUI() {
+    // Update Score & High Score
+    const scoreEl = document.getElementById('scoreDisplay');
+    const highScoreEl = document.getElementById('highScoreDisplay');
+    if (scoreEl) scoreEl.textContent = score;
+    if (highScoreEl) highScoreEl.textContent = highScore;
+
+    // Update Speed
+    const speedEl = document.getElementById('speedDisplay');
+    if (speedEl) {
+        const actualMPS = 1000 / gameSpeed;
+        const speedFactor = (actualMPS / BASE_MOVES_PER_SECOND).toFixed(1);
+        speedEl.textContent = speedFactor;
+    }
+
+    // Update Food Countdown
+    const foodCountdownEl = document.getElementById('foodCountdown');
+    if (foodCountdownEl) {
+        const now = Date.now();
+        if (!specialFood) {
+            const nextSpawn = Math.max(
+                0,
+                Math.ceil((CONFIG.SPECIAL_FOOD_INTERVAL - (now - lastSpecialFoodSpawn)) / 1000)
+            );
+            foodCountdownEl.textContent = nextSpawn;
+        } else {
+            const timeLeft = Math.ceil(
+                (specialFood.spawnTime + CONFIG.SPECIAL_FOOD_DURATION - now) / 1000
+            );
+            foodCountdownEl.textContent = timeLeft;
+        }
     }
 }
 

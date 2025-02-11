@@ -8,16 +8,20 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- Outer box that acts as enemy spawn area -->
+    <div class="top-ui-container">
+        <div id="scoreSection">
+            Score: <span id="scoreDisplay">0</span> | 
+            High Score: <span id="highScoreDisplay">0</span>
+        </div>
+        
+        <div id="speedAndFoodSection">
+            Speed: <span id="speedDisplay">1.0</span>x |
+            Next Special Food: <span id="foodCountdown">15</span>s
+        </div>
+    </div>
+
     <div class="outer-box">
-        <!-- Boss health display now in the outer box -->
-        <div id="bossHealthDisplay" class="boss-health-outside">Boss Health: 100 / 100</div>
-        <!-- Main game box (canvas lives here) -->
         <div class="game-container">
-            <div class="score-container">
-                <span>Score: <span id="score">0</span></span>
-                <span>High Score: <span id="highScore">0</span></span>
-            </div>
             <canvas id="gameCanvas"></canvas>
             <div id="gameOver" class="hidden">
                 <h2>Game Over!</h2>
@@ -32,6 +36,13 @@
                 <button id="downBtn" class="control-btn">⬇️</button>
             </div>
         </div>
+    </div>
+
+    <div id="bossHealthDisplay" class="boss-health-outside">
+        Boss Health: <span id="bossHealthText">100 / 100</span>
+    </div>
+    <div id="bossHealthContainer">
+        <div id="bossHealthBar"></div>
     </div>
     <script src="js/animations.js"></script>
     <script src="js/game.js"></script>
