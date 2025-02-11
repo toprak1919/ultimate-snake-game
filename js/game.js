@@ -31,7 +31,8 @@ let enemies = [];
 const maxEnemies = 5;
 const enemyTypes = {
     HORIZONTAL: 'horizontal',
-    VERTICAL: 'vertical'
+    VERTICAL: 'vertical',
+    TELEPORT: 'teleport'
 };
 
 // Special food types
@@ -579,7 +580,7 @@ const innerMargin = 30; // pixels
 const innerMarginTiles = Math.ceil(innerMargin / gridSize);
 
 // Modified createEnemy: Enemies spawn in the outer ring and shoot toward inner box center
-function createEnemy() {
+function createEnemy(type) {
     const sides = ['top', 'bottom', 'left', 'right'];
     const side = sides[Math.floor(Math.random() * sides.length)];
     const enemy = {
@@ -670,59 +671,94 @@ function updateBoss() {
 function createEnemy(type) {
     const enemy = {
         type: type,
-        width: gridSize,
-        height: gridSize,
+        width: gridSize * 1.2,
+        height: gridSize * 1.2,
         speed: 3 + (boss.difficulty * 0.5),
-        color: 'red',
+        color: type === enemyTypes.TELEPORT ? '#ff00ff' : '#ff3333', // Purple for teleporters
         projectiles: [],
         lastShot: 0,
-        shootingInterval: 2000 - (boss.difficulty * 100) // Faster shooting with higher difficulty
+        shootingInterval: 2000 - (boss.difficulty * 100),
+        teleportInterval: 3000,
+        lastTeleport: Date.now()
     };
 
-    if (type === enemyTypes.HORIZONTAL) {
-        enemy.x = Math.random() < 0.5 ? -1 : tileCountX + 1;
+    if (type === enemyTypes.TELEPORT) {
+        enemy.x = Math.floor(Math.random() * tileCountX);
         enemy.y = Math.floor(Math.random() * tileCountY);
-        enemy.shootDirection = enemy.x < 0 ? 1 : -1; // Shoot right if on left side, left if on right side
-        // Horizontal oscillation
+        
         enemy.movePattern = () => {
-            enemy.x += Math.sin(Date.now() / 500) * 0.05;
+            const now = Date.now();
+            if (now - enemy.lastTeleport >= enemy.teleportInterval) {
+                enemy.x = Math.floor(Math.random() * tileCountX);
+                enemy.y = Math.floor(Math.random() * tileCountY);
+                enemy.lastTeleport = now;
+                
+                // Create particles at new location
+                game.createParticles(enemy.x * gridSize, enemy.y * gridSize);
+            }
+        };
+        
+        enemy.shoot = () => {
+            const now = Date.now();
+            if (now - enemy.lastShot > enemy.shootingInterval) {
+                const projectile = {
+                    x: enemy.x * gridSize,
+                    y: enemy.y * gridSize,
+                    width: 5,
+                    height: 5,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8
+                };
+                enemy.projectiles.push(projectile);
+                enemy.lastShot = now;
+            }
         };
     } else {
-        enemy.x = Math.floor(Math.random() * tileCountX);
-        enemy.y = Math.random() < 0.5 ? -1 : tileCountY + 1;
-        enemy.shootDirection = enemy.y < 0 ? 1 : -1; // Shoot down if on top, up if on bottom
-        // Vertical oscillation
-        enemy.movePattern = () => {
-            enemy.y += Math.sin(Date.now() / 500) * 0.05;
+        if (type === enemyTypes.HORIZONTAL) {
+            enemy.x = Math.random() < 0.5 ? -1 : tileCountX + 1;
+            enemy.y = Math.floor(Math.random() * tileCountY);
+            enemy.shootDirection = enemy.x < 0 ? 1 : -1; // Shoot right if on left side, left if on right side
+            // Horizontal oscillation
+            enemy.movePattern = () => {
+                enemy.x += Math.sin(Date.now() / 500) * 0.05;
+            };
+        } else {
+            enemy.x = Math.floor(Math.random() * tileCountX);
+            enemy.y = Math.random() < 0.5 ? -1 : tileCountY + 1;
+            enemy.shootDirection = enemy.y < 0 ? 1 : -1; // Shoot down if on top, up if on bottom
+            // Vertical oscillation
+            enemy.movePattern = () => {
+                enemy.y += Math.sin(Date.now() / 500) * 0.05;
+            };
+        }
+
+        // Update shooting pattern based on enemy type
+        enemy.shoot = () => {
+            const now = Date.now();
+            if (now - enemy.lastShot > enemy.shootingInterval) {
+                const clampedX = Math.max(0, Math.min(enemy.x, tileCountX - 1));
+                const clampedY = Math.max(0, Math.min(enemy.y, tileCountY - 1));
+                const projectile = {
+                    x: clampedX * gridSize,
+                    y: clampedY * gridSize,
+                    width: 5,
+                    height: 5,
+                    speed: 5
+                };
+
+                if (enemy.type === enemyTypes.HORIZONTAL) {
+                    projectile.vx = enemy.shootDirection * projectile.speed;
+                    projectile.vy = 0;
+                } else {
+                    projectile.vx = 0;
+                    projectile.vy = enemy.shootDirection * projectile.speed;
+                }
+
+                enemy.projectiles.push(projectile);
+                enemy.lastShot = now;
+            }
         };
     }
-
-    // Update shooting pattern based on enemy type
-    enemy.shoot = () => {
-        const now = Date.now();
-        if (now - enemy.lastShot > enemy.shootingInterval) {
-            const clampedX = Math.max(0, Math.min(enemy.x, tileCountX - 1));
-            const clampedY = Math.max(0, Math.min(enemy.y, tileCountY - 1));
-            const projectile = {
-                x: clampedX * gridSize,
-                y: clampedY * gridSize,
-                width: 5,
-                height: 5,
-                speed: 5
-            };
-
-            if (enemy.type === enemyTypes.HORIZONTAL) {
-                projectile.vx = enemy.shootDirection * projectile.speed;
-                projectile.vy = 0;
-            } else {
-                projectile.vx = 0;
-                projectile.vy = enemy.shootDirection * projectile.speed;
-            }
-
-            enemy.projectiles.push(projectile);
-            enemy.lastShot = now;
-        }
-    };
 
     // Make enemies slightly larger and more visible
     enemy.width = gridSize * 1.2;

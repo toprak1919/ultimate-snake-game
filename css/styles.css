@@ -461,3 +461,46 @@ body {
 #resumeButton:hover {
     background: #27ae60;
 }
+
+/* Add near the top, before other styles */
+.parallax-layer {
+    position: fixed;
+    top: 0; 
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-repeat: repeat;
+    background-size: 800px 600px;
+    z-index: -10;
+    pointer-events: none;
+}
+
+.layer1 {
+    background-image: url('https://via.placeholder.com/800x600/111111/ffffff?text=Layer1');
+    animation: parallaxScroll1 120s linear infinite;
+}
+
+.layer2 {
+    background-image: url('https://via.placeholder.com/800x600/333333/ffffff?text=Layer2');
+    animation: parallaxScroll2 60s linear infinite;
+}
+
+.layer3 {
+    background-image: url('https://via.placeholder.com/800x600/555555/ffffff?text=Layer3');
+    animation: parallaxScroll3 30s linear infinite;
+}
+
+@keyframes parallaxScroll1 {
+    0%   { background-position: 0 0; }
+    100% { background-position: -8000px 0; }
+}
+
+@keyframes parallaxScroll2 {
+    0%   { background-position: 0 0; }
+    100% { background-position: -8000px 0; }
+}
+
+@keyframes parallaxScroll3 {
+    0%   { background-position: 0 0; }
+    100% { background-position: -8000px 0; }
+}
