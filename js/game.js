@@ -114,6 +114,13 @@ const VISUAL_SETTINGS = {
 // Add these constants near the top of your file
 const BASE_MOVES_PER_SECOND = 6;
 
+// Add near the top with other game state variables
+let isPaused = false;
+
+// Add these audio elements
+const eatSound = document.getElementById('eatSound');
+const gameOverSound = document.getElementById('gameOverSound');
+
 class Game {
     constructor() {
         this.particles = [];
@@ -231,6 +238,11 @@ const enemyVisuals = new EnemyVisuals();
 function drawGame() {
     if (!game) return;
     
+    if (isPaused) {
+        requestAnimationFrame(drawGame);
+        return; // Skip updates when paused
+    }
+    
     game.update();
     moveSnake();
     moveEnemies();  // NEW: update enemy positions
@@ -325,6 +337,15 @@ function checkFoodCollision() {
         increaseScore();
         game.createParticles(food.x * gridSize, food.y * gridSize);
         foodEaten = true;
+        
+        // Play eat sound
+        eatSound.currentTime = 0;
+        eatSound.play().catch(e => console.log('Eat sound play error:', e));
+        
+        // Add floating text
+        const pixelX = food.x * gridSize;
+        const pixelY = food.y * gridSize;
+        createFloatingText("+10", pixelX, pixelY);
     }
 
     // Special food collision (independent of normal food)
@@ -392,6 +413,9 @@ function checkGameOver() {
 }
 
 function handleGameOver() {
+    gameOverSound.currentTime = 0;
+    gameOverSound.play().catch(e => console.log('Game Over sound play error:', e));
+    
     clearInterval(gameLoop);
     document.getElementById('gameOver').classList.remove('hidden');
     if (score > highScore) {
@@ -1037,3 +1061,51 @@ function updateBossHealthBar() {
         bossHealthBar.style.width = percent + '%';
     }
 }
+
+// Add this helper function near the top of your file
+function createFloatingText(text, x, y) {
+    const textEl = document.createElement('div');
+    textEl.classList.add('floating-text');
+    textEl.textContent = text;
+    
+    const canvasRect = canvas.getBoundingClientRect();
+    textEl.style.left = (canvasRect.left + x) + 'px';
+    textEl.style.top = (canvasRect.top + y) + 'px';
+    
+    document.body.appendChild(textEl);
+    
+    setTimeout(() => {
+        textEl.remove();
+    }, 1000);
+}
+
+// Add pause/resume handlers
+document.addEventListener('keydown', (e) => {
+    if (e.key === "Escape") {
+        togglePause();
+    }
+});
+
+function togglePause() {
+    isPaused = !isPaused;
+    const pauseOverlay = document.getElementById('pauseOverlay');
+    if (isPaused) {
+        pauseOverlay.classList.remove('hidden');
+    } else {
+        pauseOverlay.classList.add('hidden');
+    }
+}
+
+// Add event listeners for pause/resume buttons
+document.addEventListener('DOMContentLoaded', () => {
+    const pauseButton = document.getElementById('pauseButton');
+    const resumeButton = document.getElementById('resumeButton');
+    
+    pauseButton?.addEventListener('click', () => {
+        if (!isPaused) togglePause();
+    });
+    
+    resumeButton?.addEventListener('click', () => {
+        if (isPaused) togglePause();
+    });
+});
