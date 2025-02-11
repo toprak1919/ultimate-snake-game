@@ -1079,19 +1079,21 @@ function getTileCounts() {
     return { tileCountX, tileCountY };
 }
 
-// Replace any existing resize handlers with this consolidated one
+// Replace the existing resize handler with this updated version
 window.addEventListener('resize', () => {
-    const container = document.querySelector('.game-container');
-    const containerWidth = container.clientWidth - 40; // Account for padding
-    const containerHeight = window.innerHeight < 768 ? window.innerHeight - 300 : 400;
+    const container = document.querySelector('.gameboy-screen');
+    if (!container) return; // Guard against null
+    
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
     
     // Maintain 3:2 aspect ratio
     const aspectRatio = 600 / 400;
-    let newWidth = containerWidth;
+    let newWidth = containerWidth * 0.9; // 90% of container width
     let newHeight = newWidth / aspectRatio;
     
-    if (newHeight > containerHeight) {
-        newHeight = containerHeight;
+    if (newHeight > containerHeight * 0.9) {
+        newHeight = containerHeight * 0.9;
         newWidth = newHeight * aspectRatio;
     }
     
